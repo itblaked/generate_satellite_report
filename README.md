@@ -1,32 +1,54 @@
-Role Name
+Generate Satellite Report
 =========
 
-A brief description of the role goes here.
-
-Requirements
-------------
-
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This role generates a Satellite report via API and stores the resuls in the variable `satellite_report_data`.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+```yaml
+---
+# defaults file for generate_satellite_report
 
-Dependencies
-------------
+# FQDN of Satellite host. Mandatory.
+satellite_host:
+# Controls whether to validate certificates of server or not. Optional, default is True.
+satellite_validate_certs:
+# ID number of report template to generate report from. Mandatory.
+satellite_report_id:
+# Username to logon to Satellite. Mandatory.
+satellite_username:
+# Password to logon to Satellite. Mandatory.
+satellite_password:
+# Input values for report template. Optional.
+# Note: This will be sent to the Satellite server API as the body of a HTTP POST message so must be JSON formatted.
+satellite_input_values: 
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+# Example:
+satellite_input_values: |
+  {
+      "input_values":{ 
+          "Hosts": "name ==  server1.example.local or name ==  server2.example.local"        
+      }
+  }  
+```
+
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```yaml
+---
+- name: Generate Satellite Report
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Apply generate_satellite_report role
+      include_role:
+        name: generate_satellite_report
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
+```
 License
 -------
 
@@ -35,4 +57,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Blake Douglas, blake@redhat.com

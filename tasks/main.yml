@@ -1,2 +1,32 @@
 ---
 # tasks file for generate_satellite_report
+
+- name: Assert that mandatory inputs are provided
+  assert:
+    that:
+      - satellite_host is defined
+      - satellite_report_id is defined
+      - satellite_username
+      - satellite_password
+    success_msg: Mandatory inputs have been provided.
+    fail_msg: Mandatory inputs have NOT been provided.
+
+- name: Generate report
+  uri:
+    url:  "https://{{ satellite_host }}/api/report_templates/{{ satellite_report_id }}/generate"
+    url_username:  "{{ satellite_username }}"
+    url_password:  "{{ satellite_password }}"
+    body:  "{{ satellite_input_values | default(none) or omit }}"
+    body_format: json
+    method: POST
+    return_content: True
+    # force_basic_auth: False # not required. Force the sending of the Basic authentication header upon initial request. The library used by the uri module only sends authentication information when a webservice responds to an initial request with a 401 status. Since some basic auth services do not properly send a 401, logins will fail.
+    # status_code: [200] # not required. A list of valid, numeric, HTTP status codes that signifies success of the request.
+    validate_certs: "{{ satellite_validate_certs | default(none) or omit }}" # not required. If C(no), SSL certificates will not be validated. This should only set to C(no) used on personally controlled sites using self-signed certificates. Prior to 1.9.2 the code defaulted to C(no).
+  register: satellite_report_data
+
+- name: Store report data for further use in Ansible Automation Platform workflows
+  set_stats:
+    data: 
+      satellite_report_data: "{{ satellite_report_data }}"
+    aggregate: False
