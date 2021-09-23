@@ -11,6 +11,11 @@
     success_msg: Mandatory inputs have been provided.
     fail_msg: Mandatory inputs have NOT been provided.
 
+- name: Pause if requested
+  pause:
+    minutes:  "{{ pause_mins | int }}"
+  when: pause_before_report | bool
+
 - name: Generate report
   uri:
     url:  "https://{{ satellite_host }}/api/report_templates/{{ satellite_report_id }}/generate"
@@ -22,11 +27,39 @@
     return_content: True
     # force_basic_auth: False # not required. Force the sending of the Basic authentication header upon initial request. The library used by the uri module only sends authentication information when a webservice responds to an initial request with a 401 status. Since some basic auth services do not properly send a 401, logins will fail.
     # status_code: [200] # not required. A list of valid, numeric, HTTP status codes that signifies success of the request.
-    validate_certs: "{{ satellite_validate_certs | default(none) or omit }}" # not required. If C(no), SSL certificates will not be validated. This should only set to C(no) used on personally controlled sites using self-signed certificates. Prior to 1.9.2 the code defaulted to C(no).
+    validate_certs: "{{ satellite_validate_certs | default(none) or omit }}" 
   register: satellite_report_data
 
-- name: Store report data for further use in Ansible Automation Platform workflows
+- name: Save report data to temp file
+  copy:
+    dest: /tmp/satellite_report_data.csv 
+    content: "{{ satellite_report_data }}"
+
+- name: Import report csv data to json
+  read_csv:
+    path:   /tmp/satellite_report_data.csv
+  register: satellite_report_data
+
+- name: Save report data as pre_patch_install_report if variable is not already defined
+  set_fact:
+    pre_patch_install_report: "{{ satellite_report_data | lower }}"
+  when: pre_patch_install_report is not defined
+
+- name: Save report data as post_patch_install_report if pre_patch_install_report is defined
+  set_fact:
+      post_patch_install_report: "{{ satellite_report_data | lower }}"
+  when: pre_patch_install_report is defined
+
+- name: Save report data as pre_patch_install_report if variable is not already defined
   set_stats:
     data: 
-      satellite_report_data: "{{ satellite_report_data }}"
+      pre_patch_install_report: "{{ satellite_report_data | lower }}"
     aggregate: False
+  when: pre_patch_install_report is not defined
+
+- name: Save report data as post_patch_install_report if pre_patch_install_report is defined
+  set_stats:
+    data: 
+      post_patch_install_report: "{{ satellite_report_data | lower }}"
+    aggregate: False
+  when: pre_patch_install_report is defined

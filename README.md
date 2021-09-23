@@ -31,6 +31,14 @@ satellite_input_values: |
           "Hosts": "name ==  server1.example.local or name ==  server2.example.local"        
       }
   }  
+
+
+# Controls whether the job should pause before generating the report. Useful when running the role as part of a workflow
+# and need to allow a few mins for stats to update in Satellite before generating a report. Optional. True/False, defaults to False
+pause_before_report: False
+
+# Controls how long in minutes to pause for. Optional. Integer, default '3'.
+pause_mins: 3
 ```
 
 

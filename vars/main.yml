@@ -1,2 +1,4 @@
 ---
 # vars file for generate_satellite_report
+pause_before_report: false
+pause_mins: 3
