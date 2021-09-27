@@ -24,7 +24,7 @@
     url:  "https://{{ satellite_host }}/api/report_templates/{{ satellite_report_id }}/generate"
     url_username:  "{{ satellite_username }}"
     url_password:  "{{ satellite_password }}"
-    body:  "{{ satellite_input_values | default(none) or omit }}"
+    body:  "{{ satellite_input_values | default(none) or omit | to_json }}"
     body_format: json
     method: POST
     return_content: True
