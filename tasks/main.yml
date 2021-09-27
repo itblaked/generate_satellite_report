@@ -7,8 +7,8 @@
     that:
       - satellite_host is defined
       - satellite_report_id is defined
-      - satellite_username
-      - satellite_password
+      - satellite_username is defined
+      - satellite_password is defined
     success_msg: Mandatory inputs have been provided.
     fail_msg: Mandatory inputs have NOT been provided.
 
