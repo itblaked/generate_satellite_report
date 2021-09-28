@@ -57,8 +57,8 @@
         body_format: json
         method: POST
         return_content: True
-        # force_basic_auth: False # not required. Force the sending of the Basic authentication header upon initial request. The library used by the uri module only sends authentication information when a webservice responds to an initial request with a 401 status. Since some basic auth services do not properly send a 401, logins will fail.
-        # status_code: [200] # not required. A list of valid, numeric, HTTP status codes that signifies success of the request.
+        force_basic_auth: True
+        status_code: [200]
         validate_certs: "{{ satellite_validate_certs | default(none) or omit }}" 
       register: satellite_report_data
 
