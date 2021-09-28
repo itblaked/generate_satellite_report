@@ -19,7 +19,7 @@
 # Manually define a host filter using this variable
 # satellite_host_filter:
 # Example:
-#    "name ==  server1.example.local or name ==  server2.example.local"        
+# "name ==  server1.example.local or name ==  server2.example.local"        
 
 # Controls whether the job should pause before generating the report. Useful when running the role as part of a workflow
 # and need to allow a few mins for stats to update in Satellite before generating a report. Optional. True/False, defaults to False
