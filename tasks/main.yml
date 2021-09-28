@@ -77,20 +77,20 @@
     - name: Save report data as pre_patch_install_report if variable is not already defined
       delegate_to: localhost
       set_fact:
-        pre_patch_install_report: "{{ satellite_report_data | lower }}"
+        pre_patch_install_report: "{{ satellite_report_data.list | lower }}"
       when: pre_patch_install_report is not defined
 
     - name: Save report data as post_patch_install_report if pre_patch_install_report is defined
       delegate_to: localhost
       set_fact:
-          post_patch_install_report: "{{ satellite_report_data | lower }}"
+          post_patch_install_report: "{{ satellite_report_data.list | lower }}"
       when: pre_patch_install_report is defined
 
     - name: Save report data as pre_patch_install_report if variable is not already defined
       delegate_to: localhost
       set_stats:
         data: 
-          pre_patch_install_report: "{{ satellite_report_data | lower }}"
+          pre_patch_install_report: "{{ satellite_report_data.list | lower }}"
         aggregate: False
       when: pre_patch_install_report is not defined
 
@@ -98,7 +98,7 @@
       delegate_to: localhost
       set_stats:
         data: 
-          post_patch_install_report: "{{ satellite_report_data | lower }}"
+          post_patch_install_report: "{{ satellite_report_data.list | lower }}"
         aggregate: False
       when: pre_patch_install_report is defined
   run_once: true
