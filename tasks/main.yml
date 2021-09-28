@@ -41,62 +41,64 @@
       run_once: true
   when: satellite_host_filter is not defined
 
-- name: Print report input in json
-  debug:
-    var: satellite_input_values|to_json
+- name: Run block of tasks on one host only
+  block:
+    - name: Print report input in json
+      debug:
+        var: satellite_input_values|to_json
+
+    - name: Generate report
+      delegate_to: localhost
+      uri:
+        url:  "https://{{ satellite_host }}/api/report_templates/{{ satellite_report_id }}/generate"
+        url_username:  "{{ satellite_username }}"
+        url_password:  "{{ satellite_password }}"
+        body:  "{{ satellite_input_values | default(none) or omit }}"
+        body_format: json
+        method: POST
+        return_content: True
+        # force_basic_auth: False # not required. Force the sending of the Basic authentication header upon initial request. The library used by the uri module only sends authentication information when a webservice responds to an initial request with a 401 status. Since some basic auth services do not properly send a 401, logins will fail.
+        # status_code: [200] # not required. A list of valid, numeric, HTTP status codes that signifies success of the request.
+        validate_certs: "{{ satellite_validate_certs | default(none) or omit }}" 
+      register: satellite_report_data
+
+    - name: Save report data to temp file
+      delegate_to: localhost
+      copy:
+        dest: /tmp/satellite_report_data.csv 
+        content: "{{ satellite_report_data }}"
+
+    - name: Import report csv data to json
+      delegate_to: localhost
+      read_csv:
+        path:   /tmp/satellite_report_data.csv
+      register: satellite_report_data
+
+    - name: Save report data as pre_patch_install_report if variable is not already defined
+      delegate_to: localhost
+      set_fact:
+        pre_patch_install_report: "{{ satellite_report_data | lower }}"
+      when: pre_patch_install_report is not defined
+
+    - name: Save report data as post_patch_install_report if pre_patch_install_report is defined
+      delegate_to: localhost
+      set_fact:
+          post_patch_install_report: "{{ satellite_report_data | lower }}"
+      when: pre_patch_install_report is defined
+
+    - name: Save report data as pre_patch_install_report if variable is not already defined
+      delegate_to: localhost
+      set_stats:
+        data: 
+          pre_patch_install_report: "{{ satellite_report_data | lower }}"
+        aggregate: False
+      when: pre_patch_install_report is not defined
+
+    - name: Save report data as post_patch_install_report if pre_patch_install_report is defined
+      delegate_to: localhost
+      set_stats:
+        data: 
+          post_patch_install_report: "{{ satellite_report_data | lower }}"
+        aggregate: False
+      when: pre_patch_install_report is defined
   run_once: true
-
-- name: Generate report
-  delegate_to: localhost
-  uri:
-    url:  "https://{{ satellite_host }}/api/report_templates/{{ satellite_report_id }}/generate"
-    url_username:  "{{ satellite_username }}"
-    url_password:  "{{ satellite_password }}"
-    body:  "{{ satellite_input_values | default(none) or omit }}"
-    body_format: json
-    method: POST
-    return_content: True
-    # force_basic_auth: False # not required. Force the sending of the Basic authentication header upon initial request. The library used by the uri module only sends authentication information when a webservice responds to an initial request with a 401 status. Since some basic auth services do not properly send a 401, logins will fail.
-    # status_code: [200] # not required. A list of valid, numeric, HTTP status codes that signifies success of the request.
-    validate_certs: "{{ satellite_validate_certs | default(none) or omit }}" 
-  register: satellite_report_data
-
-- name: Save report data to temp file
-  delegate_to: localhost
-  copy:
-    dest: /tmp/satellite_report_data.csv 
-    content: "{{ satellite_report_data }}"
-
-- name: Import report csv data to json
-  delegate_to: localhost
-  read_csv:
-    path:   /tmp/satellite_report_data.csv
-  register: satellite_report_data
-
-- name: Save report data as pre_patch_install_report if variable is not already defined
-  delegate_to: localhost
-  set_fact:
-    pre_patch_install_report: "{{ satellite_report_data | lower }}"
-  when: pre_patch_install_report is not defined
-
-- name: Save report data as post_patch_install_report if pre_patch_install_report is defined
-  delegate_to: localhost
-  set_fact:
-      post_patch_install_report: "{{ satellite_report_data | lower }}"
-  when: pre_patch_install_report is defined
-
-- name: Save report data as pre_patch_install_report if variable is not already defined
-  delegate_to: localhost
-  set_stats:
-    data: 
-      pre_patch_install_report: "{{ satellite_report_data | lower }}"
-    aggregate: False
-  when: pre_patch_install_report is not defined
-
-- name: Save report data as post_patch_install_report if pre_patch_install_report is defined
-  delegate_to: localhost
-  set_stats:
-    data: 
-      post_patch_install_report: "{{ satellite_report_data | lower }}"
-    aggregate: False
-  when: pre_patch_install_report is defined
