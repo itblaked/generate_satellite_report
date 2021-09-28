@@ -86,8 +86,6 @@
         data: 
           pre_patch_install_report: "{{ satellite_report_data.list | lower }}"
           notification_automation_result: succeeded
-          msteams_text: "{{ lookup('template', 'linux_patching_mail_body.jinja2') }}"
-          mail_body: "{{ lookup('template', 'linux_patching_mail_body.jinja2') }}"
           mail_subject: Linux Patching Report
           mail_subtype: html
           mail_port: 25
