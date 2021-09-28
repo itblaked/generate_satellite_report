@@ -74,17 +74,17 @@
         path:   /tmp/satellite_report_data.csv
       register: satellite_report_data
 
-    - name: Save report data as pre_patch_install_report if variable is not already defined
-      delegate_to: localhost
-      set_fact:
-        pre_patch_install_report: "{{ satellite_report_data.list | lower }}"
-      when: pre_patch_install_report is not defined
+    # - name: Save report data as pre_patch_install_report if variable is not already defined
+    #   delegate_to: localhost
+    #   set_fact:
+    #     pre_patch_install_report: "{{ satellite_report_data.list | lower }}"
+    #   when: pre_patch_install_report is not defined
 
-    - name: Save report data as post_patch_install_report if pre_patch_install_report is defined
-      delegate_to: localhost
-      set_fact:
-          post_patch_install_report: "{{ satellite_report_data.list | lower }}"
-      when: pre_patch_install_report is defined
+    # - name: Save report data as post_patch_install_report if pre_patch_install_report is defined
+    #   delegate_to: localhost
+    #   set_fact:
+    #       post_patch_install_report: "{{ satellite_report_data.list | lower }}"
+    #   when: pre_patch_install_report is defined
 
     - name: Save report data as pre_patch_install_report if variable is not already defined
       delegate_to: localhost
