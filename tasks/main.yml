@@ -89,6 +89,8 @@
           msteams_text: "{{ lookup('template', 'linux_patching_mail_body.jinja2') }}"
           mail_body: "{{ lookup('template', 'linux_patching_mail_body.jinja2') }}"
           mail_subject: Linux Patching Report
+          mail_subtype: html
+          mail_port: 25
       when: pre_patch_install_report is not defined
 
     - name: Save report data as post_patch_install_report if pre_patch_install_report is defined
@@ -100,6 +102,8 @@
           msteams_text: "{{ lookup('template', 'linux_patching_mail_body.jinja2') }}"
           mail_body: "{{ lookup('template', 'linux_patching_mail_body.jinja2') }}"
           mail_subject: Linux Patching Report
+          mail_subtype: html
+          mail_port: 25
       when: pre_patch_install_report is defined
   run_once: true
   
