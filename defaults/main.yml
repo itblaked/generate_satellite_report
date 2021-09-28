@@ -18,7 +18,12 @@
 
 # Input values for report template. Optional.
 # Note: This will be sent to the Satellite server API as the body of a HTTP POST message so must be JSON formatted.
-# satellite_input_values: 
+satellite_input_values: 
+  input_values:
+    Hosts: "{{ satellite_host_filter }}"
+
+# Manually define a host filter using this variable
+# satellite_host_filter:
 
 # Example:
 # satellite_input_values: |

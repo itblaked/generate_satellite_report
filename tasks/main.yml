@@ -17,6 +17,34 @@
   pause:
     minutes:  "{{ pause_mins | int }}"
   when: pause_before_report | bool
+  
+- name: Start Dynamic Host filter block
+  block:
+    - name: Add first host to filter
+      set_fact:
+        dynamic_host_filter: "{{ 'name == ' + inventory_hostname }}"
+      run_once: true
+      
+    - name: Generate full host filter
+      set_fact:
+        dynamic_host_filter: "{{ dynamic_host_filter + ' or name == ' + host }}"
+      loop: "{{ ansible_play_hosts_all }}"
+      loop_control:
+        loop_var: host
+        label: "{{ host }}"
+      when: host not in dynamic_host_filter
+      run_once: true
+
+    - name: Set satellite host filter
+      set_fact:
+        satellite_host_filter: "{{ dynamic_host_filter }}"
+      run_once: true
+  when: satellite_host_filter is not defined
+
+- name: Print report input in json
+  debug:
+    var: satellite_input_values|to_json
+  run_once: true
 
 - name: Generate report
   delegate_to: localhost
