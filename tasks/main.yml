@@ -11,12 +11,14 @@
       - satellite_password is defined
     success_msg: Mandatory inputs have been provided.
     fail_msg: Mandatory inputs have NOT been provided.
+  run_once: true
 
 - name: Pause if requested
   delegate_to: localhost
   pause:
     minutes:  "{{ pause_mins | int }}"
   when: pause_before_report | bool
+  run_once: true
   
 - name: Start Dynamic Host filter block
   block:
