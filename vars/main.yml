@@ -1,5 +1,13 @@
 ---
 # vars file for generate_satellite_report
+# Set pause to disabled by default
 pause_before_report: false
+# Set pause period to 3 mins by default
 pause_mins: 3
+# Initialize var for host filter
 dynamic_host_filter: {}
+# Input values for report template. 
+# Note: This will be sent to the Satellite server API as the body of a HTTP POST message so must be JSON formatted.
+satellite_input_values: 
+  input_values:
+    Hosts: "{{ satellite_host_filter }}"
