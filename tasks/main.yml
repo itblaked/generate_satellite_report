@@ -21,11 +21,13 @@
 - name: Start Dynamic Host filter block
   block:
     - name: Add first host to filter
+      delegate_to: localhost
       set_fact:
         dynamic_host_filter: "{{ 'name == ' + inventory_hostname }}"
       run_once: true
       
     - name: Generate full host filter
+      delegate_to: localhost
       set_fact:
         dynamic_host_filter: "{{ dynamic_host_filter + ' or name == ' + host }}"
       loop: "{{ ansible_play_hosts_all }}"
@@ -36,6 +38,7 @@
       run_once: true
 
     - name: Set satellite host filter
+      delegate_to: localhost
       set_fact:
         satellite_host_filter: "{{ dynamic_host_filter }}"
       run_once: true
@@ -44,6 +47,7 @@
 - name: Run block of tasks on one host only
   block:
     - name: Print report input in json
+      delegate_to: localhost
       debug:
         var: satellite_input_values|to_json
 
