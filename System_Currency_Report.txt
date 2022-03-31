@@ -1,0 +1,69 @@
+<%#
+name: System_Currency
+snippet: false
+template_inputs:
+- name: Hosts
+  required: false
+  input_type: user
+  description: Limit the report only on hosts found by this search query. Keep empty
+    for report on all available hosts.
+  advanced: false
+- name: Errata
+  required: false
+  input_type: user
+  description: Limit the report only on errata found by this search query. Keep empty
+    for report on all available errata.
+  advanced: false
+model: ReportTemplate
+require:
+- plugin: katello
+￼ version: 3.9.0
+-%>
+<%  # multiplier for critical security errata -%>
+<%- sc_crit = 32 -%>
+<%  # multiplier for important security errata -%>
+<%- sc_imp = 16 -%>
+<%  # multiplier for moderate important security errata -%>
+<%- sc_mod = 8 -%>
+<%  # multiplier for low important security errata -%>
+<%- sc_low = 4 -%>
+<%  # multiplier for bugfix errrata -%>
+<%- sc_bug = 2 -%>
+<%  # multiplier for ehnancement errata -%>
+<%- sc_enh = 1 -%>
+<%- report_entries = [] -%>
+<%- load_hosts(search: input('Hosts'), includes: [:applicable_errata]).each_record do |host| -%>
+<%-   critical = 0 -%>
+<%-   important = 0 -%>
+<%-   moderate = 0 -%>
+<%-   low = 0 -%>
+<%-   bugfix = 0 -%>
+<%-   enhancement = 0 -%>
+<%-   host_applicable_errata_filtered(host, input('Errata')).each do |erratum| -%>
+<%-   critical+=1 if erratum.errata_type == 'security' and erratum.severity == 'Critical' -%>
+<%-   important+=1 if erratum.errata_type == 'security' and erratum.severity == 'Important' -%>
+<%-   moderate+=1 if erratum.errata_type == 'security' and erratum.severity == 'Moderate' -%>
+<%-   low+=1 if erratum.errata_type == 'security' and erratum.severity == 'Low' -%>
+<%-   bugfix+=1 if erratum.errata_type == 'bugfix' -%>
+<%-   enhancement+=1 if erratum.errata_type == 'enhancement' -%>
+<%-   end -%>
+<%-   score = critical*sc_crit + important*sc_imp + moderate*sc_mod + low*sc_low + bugfix*sc_bug + enhancement*sc_enh -%>
+<%-   report_entries << {
+          'Host': host.name,
+          'Critical': critical,
+          'Important': important,
+          'Moderate': moderate, 
+          'Low': low, 
+          'Bugfix': bugfix,
+          'Enhancement': enhancement,
+          'Score': score,
+      } -%>
+<%- end -%>
+<%# Decomment the following line only if Foreman Jail support sort_by method for Array -%>
+<%# report_entries = report_entries.sort_by { |k| k['Score'] }.reverse  -%>
+<%- report_entries.each do |entry| -%>
+<%-     report_row(
+          entry
+        ) -%>
+<%- end -%>
+<%= report_render -%>
